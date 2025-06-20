@@ -23,6 +23,8 @@ public class ParserJson {
     }
 
     public Object parse(String json) {
+        boolean isValue = false;
+        String key = "";
         for ( ; index < json.length(); index++) {
             char ch = json.charAt(index);
             if(bracketOpen.indexOf(ch) != -1) {
@@ -36,13 +38,18 @@ public class ParserJson {
                 }
                 else {
                     if(ch == '"') {
-
+                        if(!isValue){
+                            key = readValue(json);
+                        }
+                        else{
+                            objects.put(key, readValue(json));
+                        }
                     }
-                    else if(ch == ':') {
-
+                    else if (ch == ':') {
+                        isValue = true;
                     }
-                    else {
-
+                    else if (ch == ','){
+                        isValue = false;
                     }
                 }
             }
@@ -57,7 +64,7 @@ public class ParserJson {
         index++;
         char ch = json.charAt(index);
         char pastChar = '"';
-        while (ch != '"' || pastChar == '\\') {
+        while ((ch != '"' || pastChar == '\\') && index < json.length()) {
             if (ch != '"' && pastChar != '\\' && ch != '\\') {
                 builder.append(ch);
                 pastChar = ch;
