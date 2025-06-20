@@ -73,6 +73,30 @@ public class ParserJson {
                 pastChar = ' ';
                 builder.append('"');
             }
+            else if (ch == 'n' && pastChar == '\\') {
+                pastChar = ' ';
+                builder.append('\n');
+            }
+            else if (ch == 'f' && pastChar == '\\') {
+                pastChar = ' ';
+                builder.append('\f');
+            }
+            else if(ch == 'b' && pastChar == '\\') {
+                pastChar = ' ';
+                builder.append('\b');
+            }
+            else if(ch == 'r' && pastChar == '\\') {
+                pastChar = ' ';
+                builder.append('\r');
+            }
+            else if(ch == 't' && pastChar == '\\') {
+                pastChar = ' ';
+                builder.append('\t');
+            }
+            else if(ch == '/' && pastChar == '\\') {
+                pastChar = ' ';
+                builder.append('/');
+            }
             index++;
             ch = json.charAt(index);
         }
