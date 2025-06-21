@@ -37,7 +37,7 @@ public class ParserJson {
 
     public String readObject(String json) throws Exception {
         String key = readKey(json);
-        moveToChar(json, ':');
+        moveToCharSkepSpace(json, ':');
         String value = readValue(json);
 
         System.out.println(key + " : " + value);
@@ -51,7 +51,7 @@ public class ParserJson {
     }
 
     private String readKey(String json) throws Exception {
-        moveToChar(json ,'"');
+        moveToCharSkepSpace(json ,'"');
 
         return readStringValue(json);
     }
@@ -130,9 +130,23 @@ public class ParserJson {
         return builder.toString();
     }
 
-    private void moveToChar(String json, char c) throws Exception {
+    private void moveToCharSkepSpace(String json, char c) throws Exception{
         while (index < json.length()) {
-            if(json.charAt(index) == c) {
+            if (json.charAt(index) != ' ' || json.charAt(index) != '\t' || json.charAt(index) != '\n') {
+                throw new Exception("Error json");
+            }
+            else if (json.charAt(index) == c) {
+                return;
+            }
+            index++;
+        }
+
+        throw new Exception("Error json");
+    }
+
+    private void skepSpace(String json) throws Exception{
+        while (index < json.length()) {
+            if (json.charAt(index) != ' ' || json.charAt(index) != '\t' || json.charAt(index) != '\n') {
                 return;
             }
             index++;
