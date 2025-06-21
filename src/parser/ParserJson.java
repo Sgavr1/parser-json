@@ -26,30 +26,38 @@ public class ParserJson {
 
         if(ch == '{') {
             brackets.push('{');
-            readObjectValue(json);
+            readObject(json);
         } else if(ch == '[') {
             brackets.push('[');
-            readArrayValue(json);
+            readArray(json);
         }
 
         return null;
     }
 
-    public String readObjectValue(String json) throws Exception {
+    public String readObject(String json) throws Exception {
+        String key = readKey(json);
+        moveToChar(json, ':');
+        String value = readValue(json);
+
+        System.out.println(key + " : " + value);
 
         return "";
     }
 
-    public String readArrayValue(String json) {
+    public String readArray(String json) {
 
         return "";
     }
 
-    private String readKey(String json) {
-        return "";
+    private String readKey(String json) throws Exception {
+        moveToChar(json ,'"');
+
+        return readStringValue(json);
     }
 
     private String readValue(String json) {
+
         return "";
     }
 
@@ -120,5 +128,16 @@ public class ParserJson {
         }
 
         return builder.toString();
+    }
+
+    private void moveToChar(String json, char c) throws Exception {
+        while (index < json.length()) {
+            if(json.charAt(index) == c) {
+                return;
+            }
+            index++;
+        }
+
+        throw new Exception("Error json");
     }
 }
