@@ -7,17 +7,16 @@ import java.util.Stack;
 public class ParserJson {
     private final static String bracketOpen = "{[";
     private final static String bracketClose = "}]";
-    private StringBuilder builder;
+    private final static String numbers = "1234567890.e";
+
+    private final Stack<Character> brackets;
+
+    private final StringBuilder builder;
 
     private int index;
 
-    public Stack<Character> brackets;
-    public AbstractMap<String, String> objects;
-
-    public ParserJson(){
+    public ParserJson() {
         brackets = new Stack<>();
-        objects = new HashMap<>();
-
         builder = new StringBuilder();
         index = 0;
     }
@@ -39,10 +38,10 @@ public class ParserJson {
                 else {
                     if(ch == '"') {
                         if(!isValue){
-                            key = readValue(json);
+                            key = readStringValue(json);
                         }
                         else{
-                            objects.put(key, readValue(json));
+                            //objects.put(key, readNativeValue(json));
                         }
                     }
                     else if (ch == ':') {
@@ -51,6 +50,10 @@ public class ParserJson {
                     else if (ch == ','){
                         isValue = false;
                     }
+
+                    else if(ch == '[') {
+
+                    }
                 }
             }
         }
@@ -58,7 +61,7 @@ public class ParserJson {
         return null;
     }
 
-    public String readValue(String json){
+    public String readStringValue(String json){
         builder.setLength(0);
 
         index++;
@@ -107,6 +110,24 @@ public class ParserJson {
             index++;
             ch = json.charAt(index);
         }
+        return builder.toString();
+    }
+
+    public String readNumberValue(String json) throws Exception {
+        builder.setLength(0);
+        index++;
+        char ch = json.charAt(index);
+        while (ch != ',' && index < json.length()){
+            if(numbers.indexOf(ch) != -1){
+                builder.append(ch);
+            }
+            else {
+                throw new Exception("Error parsing: index char " + index);
+            }
+            index++;
+            ch = json.charAt(index);
+        }
+
         return builder.toString();
     }
 }
