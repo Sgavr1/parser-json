@@ -21,44 +21,36 @@ public class ParserJson {
         index = 0;
     }
 
-    public Object parse(String json) {
-        boolean isValue = false;
-        String key = "";
-        for ( ; index < json.length(); index++) {
-            char ch = json.charAt(index);
-            if(bracketOpen.indexOf(ch) != -1) {
-                brackets.push(ch);
-            }
-            else {
-                if(bracketClose.indexOf(ch) != -1) {
-                    if(ch == brackets.peek() + 2) {
-                        brackets.pop();
-                    }
-                }
-                else {
-                    if(ch == '"') {
-                        if(!isValue){
-                            key = readStringValue(json);
-                        }
-                        else{
-                            //objects.put(key, readNativeValue(json));
-                        }
-                    }
-                    else if (ch == ':') {
-                        isValue = true;
-                    }
-                    else if (ch == ','){
-                        isValue = false;
-                    }
+    public Object parse(String json) throws Exception {
+        char ch = json.charAt(index);
 
-                    else if(ch == '[') {
-
-                    }
-                }
-            }
+        if(ch == '{') {
+            brackets.push('{');
+            readObjectValue(json);
+        } else if(ch == '[') {
+            brackets.push('[');
+            readArrayValue(json);
         }
 
         return null;
+    }
+
+    public String readObjectValue(String json) throws Exception {
+
+        return "";
+    }
+
+    public String readArrayValue(String json) {
+
+        return "";
+    }
+
+    private String readKey(String json) {
+        return "";
+    }
+
+    private String readValue(String json) {
+        return "";
     }
 
     public String readStringValue(String json){
@@ -115,7 +107,6 @@ public class ParserJson {
 
     public String readNumberValue(String json) throws Exception {
         builder.setLength(0);
-        index++;
         char ch = json.charAt(index);
         while (ch != ',' && index < json.length()){
             if(numbers.indexOf(ch) != -1){

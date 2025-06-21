@@ -3,6 +3,8 @@ import parser.ParserJson;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -16,8 +18,8 @@ public class Main {
 
             System.out.println(str);
 
-            parser.parse(str);
-        } catch (IOException e) {
+            System.out.println(parser.parse(str));
+        } catch (Exception e) {
             e.getMessage();
         }
 
