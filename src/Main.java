@@ -2,9 +2,6 @@ import parser.ParserJson;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -22,6 +19,5 @@ public class Main {
         } catch (Exception e) {
             e.getMessage();
         }
-
     }
 }

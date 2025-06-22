@@ -22,6 +22,7 @@ public class ParserJson {
     }
 
     public Object parse(String json) throws Exception {
+        skepSpace(json);
         char ch = json.charAt(index);
 
         if(ch == '{') {
@@ -36,11 +37,39 @@ public class ParserJson {
     }
 
     public String readObject(String json) throws Exception {
-        String key = readKey(json);
-        moveToCharSkepSpace(json, ':');
-        String value = readValue(json);
+        while (true) {
+            String key = readKey(json);
+            index++;
+            moveToCharSkepSpace(json, ':');
+            index++;
+            String value = readValue(json);
 
-        System.out.println(key + " : " + value);
+            System.out.println(key + " : " + value);
+            skepSpace(json);
+            char ch = json.charAt(index);
+            if(ch == '"'){
+                index++;
+                skepSpace(json);
+                if(json.charAt(index) == '}') {
+                    if(json.charAt(index) + 2 == brackets.pop()){
+                        break;
+                    }
+                }
+                else if(json.charAt(index) != ',') {
+                    throw new Exception();
+                }
+            }
+            else {
+                if(json.charAt(index) == '}') {
+                    if(json.charAt(index) + 2 == brackets.pop()){
+                        break;
+                    }
+                }
+                else if(json.charAt(index) != ',') {
+                    throw new Exception();
+                }
+            }
+        }
 
         return "";
     }
@@ -51,12 +80,38 @@ public class ParserJson {
     }
 
     private String readKey(String json) throws Exception {
+        index++;
         moveToCharSkepSpace(json ,'"');
 
         return readStringValue(json);
     }
 
-    private String readValue(String json) {
+    private String readValue(String json) throws Exception {
+        skepSpace(json);
+        char ch = json.charAt(index);
+
+        if (ch == '{') {
+            brackets.push('{');
+            readObject(json);
+        }
+        else if (ch == '[') {
+            brackets.push('[');
+            readArray(json);
+        }
+        else if(ch == '"'){
+            return readStringValue(json);
+        }
+        else {
+            if(ch > 47 && ch < 58){
+                if(ch == '0' && json.charAt(index+1) != '.') {
+                    throw new Exception();
+                }
+                return readNumberValue(json);
+            }
+            else {
+                throw new Exception();
+            }
+        }
 
         return "";
     }
@@ -116,7 +171,7 @@ public class ParserJson {
     public String readNumberValue(String json) throws Exception {
         builder.setLength(0);
         char ch = json.charAt(index);
-        while (ch != ',' && index < json.length()){
+        while (!(ch == ',' || ch == ' ' || ch == '\n' || ch == '\t' || ch == '}' ) && index < json.length()) {
             if(numbers.indexOf(ch) != -1){
                 builder.append(ch);
             }
@@ -126,30 +181,34 @@ public class ParserJson {
             index++;
             ch = json.charAt(index);
         }
-
         return builder.toString();
     }
 
-    private void moveToCharSkepSpace(String json, char c) throws Exception{
+    private void moveToCharSkepSpace(String json, char c) throws Exception {
         while (index < json.length()) {
-            if (json.charAt(index) != ' ' || json.charAt(index) != '\t' || json.charAt(index) != '\n') {
-                throw new Exception("Error json");
+            char ch = json.charAt(index);
+            if (ch == ' ' || ch == '\t' || ch == '\n') {
+                index++;
             }
-            else if (json.charAt(index) == c) {
+            else if (ch == c) {
                 return;
             }
-            index++;
+            else {
+                throw new Exception("Error json");
+            }
         }
 
         throw new Exception("Error json");
     }
 
-    private void skepSpace(String json) throws Exception{
+    private void skepSpace(String json) throws Exception {
         while (index < json.length()) {
-            if (json.charAt(index) != ' ' || json.charAt(index) != '\t' || json.charAt(index) != '\n') {
+            if (json.charAt(index) == ' ' || json.charAt(index) == '\t' || json.charAt(index) == '\n') {
+                index++;
+            }
+            else {
                 return;
             }
-            index++;
         }
 
         throw new Exception("Error json");
