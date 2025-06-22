@@ -15,7 +15,6 @@ public class Main {
 
             System.out.println(str);
 
-            System.out.println(parser.parse(str));
         } catch (Exception e) {
             e.getMessage();
         }
