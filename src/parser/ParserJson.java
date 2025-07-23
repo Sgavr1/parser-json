@@ -1,7 +1,5 @@
 package parser;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Stack;
 
 public class ParserJson {
@@ -10,7 +8,6 @@ public class ParserJson {
     private final static String numbers = "1234567890.e";
 
     private final Stack<Character> brackets;
-
     private final StringBuilder builder;
 
     private int index;
@@ -22,6 +19,7 @@ public class ParserJson {
     }
 
     public Object parse(String json) throws Exception {
+        JsonIterator iterator = new JsonIterator(json);
         skepSpace(json);
         char ch = json.charAt(index);
 
