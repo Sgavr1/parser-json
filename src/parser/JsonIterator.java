@@ -8,6 +8,7 @@ public class JsonIterator {
     private final StringBuilder builder;
 
     public JsonIterator(String json) {
+        if (json == null || json == "") throw new NoSuchElementException("Empty JSON");
         builder = new StringBuilder();
         chars = json.toCharArray();
         index = 0;
@@ -18,20 +19,20 @@ public class JsonIterator {
 
         boolean escaping = false;
 
-        while (true) {
-            char c = nextChar();
+        while (index < chars.length) {
+            char c = chars[index++];
 
             if (escaping) {
                 switch (c) {
-                    case 'n' -> builder.append('\n');
-                    case 'r' -> builder.append('\r');
-                    case 't' -> builder.append('\t');
-                    case 'f' -> builder.append('\f');
-                    case 'b' -> builder.append('\b');
-                    case '"' -> builder.append('\"');
-                    case '\\' -> builder.append('\\');
-                    case '/' -> builder.append('/');
-                    default -> builder.append(c);
+                    case 'n' : builder.append('\n'); break;
+                    case 'r' : builder.append('\r'); break;
+                    case 't' : builder.append('\t'); break;
+                    case 'f' : builder.append('\f'); break;
+                    case 'b' : builder.append('\b'); break;
+                    case '"' : builder.append('\"'); break;
+                    case '\\' : builder.append('\\'); break;
+                    case '/' : builder.append('/'); break;
+                    default : builder.append(c);
                 }
                 escaping = false;
             } else if (c == '\\') {
@@ -45,30 +46,54 @@ public class JsonIterator {
         return builder.toString();
     }
 
-    public char nextChar() {
-        if (!hasNextChar()) {
-            throw new NoSuchElementException("End of JSON");
+    public String extractValue() {
+        builder.setLength(0);
+
+        while (index < chars.length) {
+            char c = chars[index];
+            if (c == ',' || c == '}' || c == ']') break;
+
+            builder.append(c);
+            index++;
         }
+
+        return builder.toString();
+    }
+
+    public char nextChar() {
+        if (index >= chars.length) throw new NoSuchElementException("End of JSON");
         return chars[index++];
     }
 
     public char peekChar() {
-        if (!hasNextChar()) {
-            throw new NoSuchElementException("End of JSON");
-        }
+        if (index >= chars.length) throw new NoSuchElementException("End of JSON");
         return chars[index];
     }
 
+    public char backChar() {
+        if (index == 0) throw new NoSuchElementException("Cannot move back before start of JSON");
+        return chars[index--];
+    }
+
     public char nextCharSkipWhitespace() {
-        while (true) {
-            char c = nextChar();
-            if (c != ' ' && c != '\n' && c != '\t') {
-                return c;
-            }
+        skipWhitespace();
+        return chars[index++];
+    }
+
+    public char peekCharSkipWhitespace() {
+        skipWhitespace();
+        return chars[index];
+    }
+
+    public void skipWhitespace() {
+        while (index < chars.length) {
+            char c = chars[index];
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') break;
+            else index++;
         }
     }
 
-    public boolean hasNextChar(){
+    public boolean hasNextChar() {
         return index < chars.length;
     }
 }
