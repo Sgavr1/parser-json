@@ -38,12 +38,13 @@ public class JsonIterator {
             } else if (c == '\\') {
                 escaping = true;
             } else if (c == '\"') {
-                break;
+                return builder.toString();
             } else {
                 builder.append(c);
             }
         }
-        return builder.toString();
+
+        throw new NoSuchElementException("Bad JSON");
     }
 
     public String extractValue() {
@@ -51,13 +52,13 @@ public class JsonIterator {
 
         while (index < chars.length) {
             char c = chars[index];
-            if (c == ',' || c == '}' || c == ']') break;
+            if (c == ',' || c == '}' || c == ']') return builder.toString();
 
             builder.append(c);
             index++;
         }
 
-        return builder.toString();
+        throw new NoSuchElementException("Bad JSON ");
     }
 
     public char nextChar() {
@@ -72,7 +73,7 @@ public class JsonIterator {
 
     public char backChar() {
         if (index == 0) throw new NoSuchElementException("Cannot move back before start of JSON");
-        return chars[index--];
+        return chars[--index];
     }
 
     public char nextCharSkipWhitespace() {

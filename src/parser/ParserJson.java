@@ -1,83 +1,89 @@
 package parser;
 
+import parser.value.*;
+
 import java.util.NoSuchElementException;
-import java.util.Stack;
 
 public class ParserJson {
 
-    private final Stack<Character> brackets;
-
     public ParserJson() {
-        brackets = new Stack<>();
     }
 
-    public Object parse(String json) throws Exception {
+    public ValueJson parse(String json) throws Exception {
         JsonIterator iterator = new JsonIterator(json);
         char ch = iterator.nextCharSkipWhitespace();
 
-        if (ch == '{') {
-            brackets.push('{');
-            readObject(iterator);
-        } else if (ch == '[') {
-            brackets.push('[');
-            readArray(iterator);
-        }
-
-        return null;
+        if (ch == '{') return readObject(iterator);
+        else if (ch == '[') return readArray(iterator);
+        else throw new NoSuchElementException("Error valid JSON");
     }
 
-    public String readObject(JsonIterator iterator) throws Exception {
+    public JsonObject readObject(JsonIterator iterator) throws Exception {
+        JsonObject jsonObject = new JsonObject();
+
         while (iterator.hasNextChar()) {
             String key = readKey(iterator);
-            if (iterator.nextCharSkipWhitespace() != ':') {
-                throw new NoSuchElementException("Error valid JSON");
-            }
-            String value = readValue(iterator);
-
-            System.out.println(key + " : " + value);
+            if (iterator.nextCharSkipWhitespace() != ':') throw new NoSuchElementException("Error valid JSON");
+            jsonObject.getFields().put(key, readValue(iterator));
 
             char c = iterator.peekCharSkipWhitespace();
-            if (c == ',') {
-                iterator.nextChar();
-            } else if (c == '}' && brackets.pop() == '{') {
-                break;
-            } else if (c == '"') {
-                iterator.backChar();
-            } else {
-                throw new NoSuchElementException("Error valid JSON");
-            }
+
+            if (c == ',') iterator.nextChar();
+            else if (c == '}') break;
+            else if (c == '"') iterator.backChar();
+            else throw new NoSuchElementException("Error valid JSON");
         }
 
-        return "";
+        return jsonObject;
     }
 
-    public String readArray(JsonIterator iterator) {
+    public ArrayJsonValue readArray(JsonIterator iterator) throws Exception {
+        ArrayJsonValue arrayJsonValue = new ArrayJsonValue();
 
-        return "";
+        while (iterator.hasNextChar()) {
+            arrayJsonValue.getValues().add(readValue(iterator));
+
+            char c = iterator.peekCharSkipWhitespace();
+
+            if (c == ',') iterator.nextChar();
+            else if (c == ']') break;
+            else if (c == '"') iterator.backChar();
+            else throw new NoSuchElementException("Error valid JSON");
+        }
+
+        return arrayJsonValue;
     }
 
     private String readKey(JsonIterator iterator) throws Exception {
-        if (iterator.nextCharSkipWhitespace() != '"') {
-            throw new NoSuchElementException("Error valid JSON");
-        }
+        if (iterator.nextCharSkipWhitespace() != '"') throw new NoSuchElementException("Error valid JSON");
 
         return iterator.extractStringValue();
     }
 
-    private String readValue(JsonIterator iterator) throws Exception {
+    private ValueJson readValue(JsonIterator iterator) throws Exception {
         char c = iterator.nextCharSkipWhitespace();
 
-        if (c == '{') {
-            brackets.push('{');
-            return readObject(iterator);
-        } else if (c == '[') {
-            brackets.push('[');
-            return readArray(iterator);
-        } else if (c == '"') {
-            return iterator.extractStringValue();
-        } else {
+        if (c == '{') return readObject(iterator);
+        else if (c == '[') return readArray(iterator);
+        else if (c == '"') return new StringJsonValue(iterator.extractStringValue());
+        else {
             iterator.backChar();
-            return iterator.extractValue();
+            return new StringJsonValue(iterator.extractValue());
         }
+    }
+
+    private ValueJson readNumber(JsonIterator iterator) {
+        NativeJsonValue jsonValue = new IntegerJsonValue();
+        return jsonValue;
+    }
+
+    private BooleanJsonValue readBoolean(JsonIterator iterator) {
+        BooleanJsonValue jsonValue = new BooleanJsonValue();
+        return jsonValue;
+    }
+
+    private NullJsonValue readNull(JsonIterator iterator) {
+        NullJsonValue jsonValue = new NullJsonValue();
+        return jsonValue;
     }
 }

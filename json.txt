@@ -8,5 +8,9 @@
 	"age6" : 25,
 	"age7" : 0.25,
 	"age7" : nu     ll       ,
-	"age8" : true
+	"age8" : true,
+	"age9" : {
+	            "name1" : "asdf",
+	            "name2" : "alina"
+	         }
 }
